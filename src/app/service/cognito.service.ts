@@ -1,6 +1,5 @@
 import {Injectable, Inject} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
-import {RegistrationUser} from "../public/auth/register/registration.component";
 import {environment} from "../../environments/environment";
 
 /**
@@ -138,77 +137,6 @@ export class CognitoUtil {
 }
 
 @Injectable()
-export class UserRegistrationService {
-
-    constructor(@Inject(CognitoUtil) public cognitoUtil: CognitoUtil) {
-
-    }
-
-    register(user: RegistrationUser, callback: CognitoCallback): void {
-        console.log("UserRegistrationService: user is " + user);
-
-        let attributeList = [];
-
-        let dataEmail = {
-            Name: 'email',
-            Value: user.email
-        };
-        let dataNickname = {
-            Name: 'nickname',
-            Value: user.name
-        };
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail));
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataNickname));
-
-        this.cognitoUtil.getUserPool().signUp(user.email, user.password, attributeList, null, function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                console.log("UserRegistrationService: registered user is " + result);
-                callback.cognitoCallback(null, result);
-            }
-        });
-
-    }
-
-    confirmRegistration(username: string, confirmationCode: string, callback: CognitoCallback): void {
-
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.confirmRegistration(confirmationCode, true, function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                callback.cognitoCallback(null, result);
-            }
-        });
-    }
-
-    resendCode(username: string, callback: CognitoCallback): void {
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.resendConfirmationCode(function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                callback.cognitoCallback(null, result);
-            }
-        });
-    }
-
-}
-
-@Injectable()
 export class UserLoginService {
 
     constructor(public ddb: DynamoDBService, public cognitoUtil: CognitoUtil) {
@@ -259,45 +187,6 @@ export class UserLoginService {
             onFailure: function (err) {
                 callback.cognitoCallback(err.message, null);
             },
-        });
-    }
-
-    forgotPassword(username: string, callback: CognitoCallback) {
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.forgotPassword({
-            onSuccess: function (result) {
-
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            },
-            inputVerificationCode() {
-                callback.cognitoCallback(null, null);
-            }
-        });
-    }
-
-    confirmNewPassword(email: string, verificationCode: string, password: string, callback: CognitoCallback) {
-        let userData = {
-            Username: email,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.confirmPassword(verificationCode, password, {
-            onSuccess: function (result) {
-                callback.cognitoCallback(null, result);
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            }
         });
     }
 

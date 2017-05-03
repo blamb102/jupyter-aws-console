@@ -1,16 +1,17 @@
 export const environment = {
     production: true,
 
-    region: 'us-east-1',
+    region: 'us-west-2',
 
-    identityPoolId: 'us-east-1:fbe0340f-9ffc-4449-a935-bb6a6661fd53',
-    userPoolId: 'us-east-1_PGSbCVZ7S',
-    clientId: 'hh5ibv67so0qukt55c5ulaltk',
+    identityPoolId: 'us-west-2:09114ff0-a193-4d71-8e75-6ed12e3ede1b',
+    userPoolId: 'us-west-2_Tr3dvlT5B',
+    clientId: '4galnav88qp60eicu9f17bjf3f',
 
-    rekognitionBucket: 'rekognition-pics',
+    appBucket: 'brianlambson-angular2-app',
     albumName: "usercontent",
-    bucketRegion: 'us-east-1',
+    bucketRegion: 'us-west-2',
 
-    ddbTableName: 'LoginTrail'
+    ec2region: 'us-west-2',
+
+    ddbTableName: 'brianlambson-angular2-app'
 };
-

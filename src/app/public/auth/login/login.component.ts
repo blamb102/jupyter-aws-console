@@ -4,7 +4,7 @@ import {CognitoCallback, UserLoginService, LoggedInCallback} from "../../../serv
 import {DynamoDBService} from "../../../service/ddb.service";
 
 @Component({
-    selector: 'awscognito-angular2-app',
+    selector: 'brianlambson-angular2-app',
     templateUrl: './login.html'
 })
 export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit {
@@ -37,10 +37,6 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
         if (message != null) { //error
             this.errorMessage = message;
             console.log("result: " + this.errorMessage);
-            if (this.errorMessage === 'User is not confirmed.') {
-                console.log("redirecting");
-                this.router.navigate(['/home/confirmRegistration', this.email]);
-            }
         } else { //success
             this.ddb.writeLogEntry("login");
             this.router.navigate(['/securehome']);

@@ -1,4 +1,5 @@
 import {environment} from "../../environments/environment";
+import {Injectable, Inject} from "@angular/core";
 
 /**
  * Created by Vladimir Budilov
@@ -6,6 +7,12 @@ import {environment} from "../../environments/environment";
 
 declare var AWS: any;
 
+export interface Callback {
+    callback(): void;
+    callbackWithParam(result: any): void;
+}
+
+@Injectable()
 export class S3Service {
 
     constructor() {
@@ -13,65 +20,29 @@ export class S3Service {
     }
 
     private getS3(): any {
+
         AWS.config.update({
-            region: environment.bucketRegion,
+            region: environment.bucketRegion
         });
 
         var s3 = new AWS.S3({
             region: environment.bucketRegion,
             apiVersion: '2006-03-01',
-            params: {Bucket: environment.rekognitionBucket}
+            params: {Bucket: environment.appBucket}
         });
 
         return s3
     }
 
-    public addPhoto(selectedFile): boolean {
-        if (!selectedFile) {
-            console.log('Please choose a file to upload first.');
-            return;
-        }
-        let fileName = selectedFile.name;
-        let albumPhotosKey = environment.albumName + '/' + AWS.config.credentials.identityId + "/";
-        let photoKey = albumPhotosKey + fileName;
+    listObjects(callback: Callback) {
+        var s3=this.getS3();
 
-        this.getS3().upload({
-            Key: photoKey,
-            ContentType: selectedFile.type,
-            Body: selectedFile,
-            StorageClass: 'STANDARD',
-            ACL: 'private'
-        }, function (err, data) {
+        s3.listObjects(function (err, result) {
             if (err) {
-                console.log('There was an error uploading your photo: ', err);
-                return false;
+                console.log("S3Service: in listObjects: " + err);
+            } else {
+                callback.callbackWithParam(result.Contents);
             }
-            console.log('Successfully uploaded photo.');
-            return true;
         });
     }
-
-    public deletePhoto(albumName, photoKey) {
-        // this.getS3().deleteObjectStore("").promise().then(function () {
-        //
-        // }
-        this.getS3().deleteObject({Key: photoKey}, function (err, data) {
-            if (err) {
-                console.log('There was an error deleting your photo: ', err.message);
-                return;
-            }
-            console.log('Successfully deleted photo.');
-        });
-    }
-
-    public viewAlbum(albumName) {
-        var albumPhotosKey = encodeURIComponent(environment.albumName) + '//';
-        this.getS3().listObjects({Prefix: albumPhotosKey}, function (err, data) {
-            if (err) {
-                console.log('There was an error viewing your album: ' + err);
-            }
-
-        });
-    }
-
 }

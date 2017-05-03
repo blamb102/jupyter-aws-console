@@ -10,7 +10,7 @@ export class Stuff {
 }
 
 @Component({
-    selector: 'awscognito-angular2-app',
+    selector: 'brianlambson-angular2-app',
     templateUrl: './useractivity.html'
 })
 export class UseractivityComponent implements LoggedInCallback {

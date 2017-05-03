@@ -4,7 +4,7 @@ import {Router} from "@angular/router";
 
 declare var AWS: any;
 @Component({
-    selector: 'awscognito-angular2-app',
+    selector: 'brianlambson-angular2-app',
     templateUrl: './myprofile.html'
 })
 export class MyProfileComponent implements LoggedInCallback {

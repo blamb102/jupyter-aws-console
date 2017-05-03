@@ -3,7 +3,7 @@ import {Router} from "@angular/router";
 import {LoggedInCallback, UserLoginService} from "../../service/cognito.service";
 
 @Component({
-    selector: 'awscognito-angular2-app',
+    selector: 'brianlambson-angular2-app',
     templateUrl: './secureHome.html'
     // styleUrls: ['/assets/css/sb-admin.css']
 })
@@ -24,4 +24,3 @@ export class SecureHomeComponent implements OnInit, LoggedInCallback {
         }
     }
 }
-

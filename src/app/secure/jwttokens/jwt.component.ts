@@ -9,7 +9,7 @@ export class Stuff {
 }
 
 @Component({
-    selector: 'awscognito-angular2-app',
+    selector: 'brianlambson-angular2-app',
     templateUrl: './jwt.html'
 })
 export class JwtComponent implements LoggedInCallback {

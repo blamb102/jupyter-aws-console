@@ -1,0 +1,13 @@
+<h1 class="page-header">My Buckets</h1>
+
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <tr>
+            <th>Name</th>
+        </tr>
+        <tr *ngFor="let object of objects" class="active">
+            <td>{{ object.key }}</td>
+        </tr>
+
+    </table>
+</div>
