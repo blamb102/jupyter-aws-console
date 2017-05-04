@@ -4,7 +4,7 @@ import {CognitoCallback, UserLoginService, LoggedInCallback} from "../../../serv
 import {DynamoDBService} from "../../../service/ddb.service";
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './login.html'
 })
 export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit {

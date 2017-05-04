@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from "@angular/router";
 import {UserLoginService, LoggedInCallback} from "../../../service/cognito.service";
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     template: ''
 })
 export class LogoutComponent implements LoggedInCallback {

@@ -7,8 +7,7 @@ export const environment = {
     userPoolId: 'us-west-2_Tr3dvlT5B',
     clientId: '4galnav88qp60eicu9f17bjf3f',
 
-    appBucket: 'brianlambson-angular2-app',
-    albumName: "usercontent",
+    appBucket: 'bucket.brianlambson.com',
     bucketRegion: 'us-west-2',
 
     ec2region: 'us-west-2',

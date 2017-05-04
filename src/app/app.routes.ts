@@ -43,7 +43,7 @@ const secureHomeRoutes: Routes = [
         {path: 'mys3objects', component: MyS3ObjectComponent},
         {path: 'myinstances', component: MyInstancesComponent},
         {path: 'useractivity', component: UseractivityComponent},
-        {path: '', component: MyProfileComponent}]
+        {path: '', component: MyInstancesComponent}]
     }
 ];
 

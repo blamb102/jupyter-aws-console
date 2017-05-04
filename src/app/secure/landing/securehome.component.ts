@@ -3,7 +3,7 @@ import {Router} from "@angular/router";
 import {LoggedInCallback, UserLoginService} from "../../service/cognito.service";
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './secureHome.html'
     // styleUrls: ['/assets/css/sb-admin.css']
 })

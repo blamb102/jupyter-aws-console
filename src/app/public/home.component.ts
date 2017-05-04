@@ -4,7 +4,7 @@ declare let AWS: any;
 declare let AWSCognito: any;
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     template: '<p>Hello and welcome!"</p>'
 })
 export class AboutComponent {
@@ -12,7 +12,7 @@ export class AboutComponent {
 }
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './landinghome.html'
 })
 export class HomeLandingComponent {
@@ -22,7 +22,7 @@ export class HomeLandingComponent {
 }
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './home.html'
 })
 export class HomeComponent implements OnInit {

@@ -13,7 +13,7 @@ export class Instances {
 
 declare var AWS: any;
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './myinstances.html'
 })
 export class MyInstancesComponent implements LoggedInCallback {
@@ -44,7 +44,7 @@ export class MyInstancesComponent implements LoggedInCallback {
     }
 
     onConnect(instanceIp: string) {
-        var newWindow = window.open('http://'+instanceIp+':8888');
+        var newWindow = window.open('https://'+instanceIp+':8888');
     }
 
 }
@@ -82,7 +82,8 @@ export class StartInstanceCallback implements Callback {
     }
 
     callback() {
-        this.me.ec2.waitForRunning(this.instance.id, new InstanceRunningCallback(this.me))
+        this.me.ec2.waitForRunning(this.instance.id, new InstanceRunningCallback(this.me));
+        this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
     callbackWithParam(result: any) {

@@ -3,14 +3,12 @@
 <div class="table-responsive">
     <table class="table table-hover table-striped">
         <tr>
-            <th>ID</th>
             <th>Type</th>
             <th>State</th>
             <th>Action</th>
             <th>Connect</th>
         </tr>
         <tr *ngFor="let instance of instances" class="active">
-            <td>{{ instance.id }}</td>
             <td>{{ instance.type }}</td>
             <td>{{ instance.state }}</td>
             <td>

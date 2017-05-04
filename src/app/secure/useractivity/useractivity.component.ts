@@ -10,7 +10,7 @@ export class Stuff {
 }
 
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './useractivity.html'
 })
 export class UseractivityComponent implements LoggedInCallback {

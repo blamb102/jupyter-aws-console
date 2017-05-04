@@ -10,7 +10,7 @@ export class Objects {
 
 declare var AWS: any;
 @Component({
-    selector: 'brianlambson-angular2-app',
+    selector: 'my-aws-console-app',
     templateUrl: './mys3objects.html'
 })
 export class MyS3ObjectComponent implements LoggedInCallback {
