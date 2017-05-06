@@ -16,6 +16,7 @@ import {JwtComponent} from "./secure/jwttokens/jwt.component";
 import {DynamoDBService} from "./service/ddb.service";
 import {S3Service} from "./service/s3.service";
 import {EC2Service} from "./service/ec2.service";
+import {CFService} from "./service/cloudflare.service"
 import {LoginComponent} from "./public/auth/login/login.component";
 import {LogoutComponent} from "./public/auth/logout/logout.component";
 
@@ -47,6 +48,7 @@ import {LogoutComponent} from "./public/auth/logout/logout.component";
         DynamoDBService,
         S3Service,
         EC2Service,
+        CFService,
         UserLoginService,
         UserParametersService],
     bootstrap: [AppComponent]

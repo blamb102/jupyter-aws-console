@@ -63,6 +63,16 @@ export class EC2Service {
         });
     }
 
+    getInstanceDnsName(instanceId: string, callback: Callback) {
+        this.getEC2().describeInstances({InstanceIds: [instanceId]}, function(err, result) {
+            if (err) {
+                console.log("EC2Service: in getInstanceDnsName: " + err);
+            } else {
+                callback.callbackWithParam(result.Reservations[0].Instances[0].PublicDnsName);
+            }
+        });
+    }
+
     stopInstance(instanceId: string, callback: Callback) {
         this.getEC2().stopInstances({InstanceIds: [instanceId]}, function (err, result) {
             if (err) {

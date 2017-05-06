@@ -1,6 +1,7 @@
 import {Component} from "@angular/core";
 import {LoggedInCallback, UserLoginService, Callback} from "../../service/cognito.service";
 import {EC2Service} from "../../service/ec2.service";
+import {CFService} from "../../service/cloudflare.service";
 import {Router} from "@angular/router";
 
 
@@ -21,7 +22,7 @@ export class MyInstancesComponent implements LoggedInCallback {
     public instances: Array<Instances> = [];
     public cognitoId: String;
 
-    constructor(public router: Router, public userService: UserLoginService, public ec2: EC2Service) {
+    constructor(public router: Router, public userService: UserLoginService, public ec2: EC2Service, public cf: CFService) {
         this.userService.isAuthenticated(this);
         console.log("In MyInstancesComponent");
     }
@@ -44,20 +45,18 @@ export class MyInstancesComponent implements LoggedInCallback {
     }
 
     onConnect(instanceIp: string) {
-        var newWindow = window.open('https://'+instanceIp+':8888');
+        var newWindow = window.open('https://jupyter.brianlambson.com:8888');
+        //this.cf.updateCnameRecord('i-054a8ea940daaf4af');
+        //this.cf.restoreDefaultCnameRecord();
     }
 
 }
 
 export class GetInstancesCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent) {
+    constructor(public me: MyInstancesComponent) {}
 
-    }
-
-    callback() {
-
-    }
+    callback() {}
 
     callbackWithParam(result: any) {
         this.me.instances = [];
@@ -77,62 +76,49 @@ export class GetInstancesCallback implements Callback {
 
 export class StartInstanceCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent, public instance: Instances) {
-
-    }
+    constructor(public me: MyInstancesComponent, public instance: Instances) {}
 
     callback() {
-        this.me.ec2.waitForRunning(this.instance.id, new InstanceRunningCallback(this.me));
+        this.me.ec2.waitForRunning(this.instance.id, new InstanceRunningCallback(this.me, this.instance));
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
-    callbackWithParam(result: any) {
-
-    }
+    callbackWithParam(result: any) {}
 }
 
 export class InstanceRunningCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent) {
-
-    }
+    constructor(public me: MyInstancesComponent, public instance: Instances) {}
 
     callback() {
+        console.log(this.instance.id);
+        this.me.cf.updateCnameRecord(this.instance.id);
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
-    callbackWithParam(result: any) {
-
-    }
+    callbackWithParam() {}
 }
 
 export class StopInstanceCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent, public instance: Instances) {
-
-    }
+    constructor(public me: MyInstancesComponent, public instance: Instances) {}
 
     callback() {
         this.me.ec2.waitForStopped(this.instance.id, new InstanceStoppedCallback(this.me));
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
-    callbackWithParam(result: any) {
-
-    }
+    callbackWithParam(result: any) {}
 }
 
 export class InstanceStoppedCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent) {
-
-    }
+    constructor(public me: MyInstancesComponent) {}
 
     callback() {
+        this.me.cf.restoreDefaultCnameRecord();
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
-    callbackWithParam(result: any) {
-
-    }
+    callbackWithParam(result: any) {}
 }
