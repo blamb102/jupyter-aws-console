@@ -18,6 +18,13 @@ export class CFAPI {
     success: Boolean;
 }
 
+export class DNS {
+    user: string;
+    key: string;
+    zone: string;
+    record: string;
+}
+
 @Injectable()
 export class CFService {
 
@@ -38,9 +45,9 @@ export class CFService {
         this.s3.getBucketTags(environment.jupyterServer, callback);
     }
 
-    makeCfApiCall(user: string, key: string, cname_target: string): Observable<CFAPI>{
-        let headers = new Headers({'X-Auth-Email':user, 'X-Auth-Key': key, 'Content-Type': 'application/json'});
-        let url = `https://api.cloudflare.com/client/v4/zones/${environment.cfZoneId}/dns_records/${environment.cfRecordId}`;
+    makeCfApiCall(dns: DNS, cname_target: string): Observable<CFAPI>{
+        let headers = new Headers({'X-Auth-Email':dns.user, 'X-Auth-Key': dns.key, 'Content-Type': 'application/json'});
+        let url = `https://api.cloudflare.com/client/v4/zones/${dns.zone}/dns_records/${dns.record}`;
         let api_data = {
             type: 'CNAME',
             name: environment.jupyterServer,
@@ -48,7 +55,7 @@ export class CFService {
             ttl: 1,
             proxied: false
         }
-        url = 'https://cors-anywhere.herokuapp.com/'+url; // CORS Proxy
+        url = environment.corsProxy+url;
         return this.http
                   .put(url, JSON.stringify(api_data), {headers: headers})
                   .map(this.extractData)
@@ -99,7 +106,19 @@ export class CfCredentialsReceivedCallback implements Callback {
     callback() {}
 
     callbackWithParam(result: any) {
-        this.me.makeCfApiCall(result.dns_user, result.dns_key, this.cname_target)
+        var dns = new DNS();
+        for (let i = 0; i < result.length; i++) {
+            if (result.TagSet[i].Key=='dns_user') {
+                dns.user = result.TagSet[i].Value;
+            } else if (result.TagSet[i].Key=='dns_key') {
+                dns.key = result.TagSet[i].Value;
+            } else if (result.TagSet[i].Key=='dns_zone') {
+                dns.zone = result.TagSet[i].Value;
+            } else if (result.TagSet[i].Key=='dns_record') {
+              dns.record = result.TagSet[i].Value;
+            }
+        }
+        this.me.makeCfApiCall(dns, this.cname_target)
             .subscribe(
                  result =>  this.response = result,
                  success =>  this.success = success);

@@ -49,15 +49,7 @@ export class S3Service {
             if (err) {
                 console.log("S3Service: in getBucketTagging: " + err);
             } else {
-                let myresult = {dns_user: '', dns_key:''};
-                for (let i = 0; i < result.TagSet.length; i++) {
-                    if (result.TagSet[i].Key=='dns_user') {
-                        myresult.dns_user = result.TagSet[i].Value;
-                    } else if (result.TagSet[i].Key=='dns_key') {
-                        myresult.dns_key = result.TagSet[i].Value;
-                    }
-                }
-                callback.callbackWithParam(myresult);
+                callback.callbackWithParam(result.TagSet);
             }
         });
     }

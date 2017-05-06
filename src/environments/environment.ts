@@ -14,8 +14,7 @@ export const environment = {
 
     ddbTableName: 'brianlambson-angular2-app',
 
-    cfZoneId: '974d8a384890777df034bb281d7e68eb',
-    cfRecordId: '46bedfe0d0f3889999d9bf1c5181b324',
+    corsProxy: 'https://cors-anywhere.herokuapp.com/',
 
     jupyterServer: 'jupyter.brianlambson.com',
     jupyterDefault: 'jupyter.brianlambson.com.s3-website-us-west-2.amazonaws.com'
