@@ -36,12 +36,13 @@ export class MyInstancesComponent implements LoggedInCallback {
     }
 
     onAction(instance: Instances) {
-        if (instance.state=='stopped') {
-            this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance))
-        }
-        if (instance.state=='running') {
-            this.ec2.stopInstance(instance.id, new StopInstanceCallback(this, instance))
-        }
+      this.cf.restoreDefaultCnameRecord();
+        // if (instance.state=='stopped') {
+        //     this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance))
+        // }
+        // if (instance.state=='running') {
+        //     this.ec2.stopInstance(instance.id, new StopInstanceCallback(this, instance))
+        // }
     }
 
     onConnect(instanceIp: string) {

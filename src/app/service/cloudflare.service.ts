@@ -48,6 +48,7 @@ export class CFService {
             ttl: 1,
             proxied: false
         }
+        url = 'https://cors-anywhere.herokuapp.com/'+url; // CORS Proxy
         return this.http
                   .put(url, JSON.stringify(api_data), {headers: headers})
                   .map(this.extractData)
