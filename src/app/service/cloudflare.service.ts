@@ -53,7 +53,7 @@ export class CFService {
             name: environment.jupyterServer,
             content: cname_target,
             ttl: 1,
-            proxied: false
+            proxied: true
         }
         url = environment.corsProxy+url;
         return this.http
@@ -107,15 +107,16 @@ export class CfCredentialsReceivedCallback implements Callback {
 
     callbackWithParam(result: any) {
         var dns = new DNS();
+
         for (let i = 0; i < result.length; i++) {
-            if (result.TagSet[i].Key=='dns_user') {
-                dns.user = result.TagSet[i].Value;
-            } else if (result.TagSet[i].Key=='dns_key') {
-                dns.key = result.TagSet[i].Value;
-            } else if (result.TagSet[i].Key=='dns_zone') {
-                dns.zone = result.TagSet[i].Value;
-            } else if (result.TagSet[i].Key=='dns_record') {
-              dns.record = result.TagSet[i].Value;
+            if (result[i].Key=='dns_user') {
+                dns.user = result[i].Value;
+            } else if (result[i].Key=='dns_key') {
+                dns.key = result[i].Value;
+            } else if (result[i].Key=='dns_zone') {
+                dns.zone = result[i].Value;
+            } else if (result[i].Key=='dns_record') {
+              dns.record = result[i].Value;
             }
         }
         this.me.makeCfApiCall(dns, this.cname_target)

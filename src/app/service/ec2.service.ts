@@ -94,4 +94,64 @@ export class EC2Service {
         });
     }
 
+    describeVolume(volumeId: string, callback: Callback) {
+        this.getEC2().describeVolumes({VolumeIds: [volumeId]}, function (err, result) {
+            if (err) {
+                console.log("EC2Service: in listInstances: " + err);
+            } else {
+                if(result.Volumes[0].Attachments.length>0) {
+                    callback.callbackWithParam({
+                      InstanceId: result.Volumes[0].Attachments[0].InstanceId,
+                      State: result.Volumes[0].Attachments[0].State,
+                      Availability: result.Volumes[0].State
+                    });
+                } else {
+                    callback.callbackWithParam({InstanceId: '', State: '', Availability:''});
+                }
+            }
+        });
+    }
+
+    attachVolume(volumeId: string, instanceId: string, callback: Callback) {
+        this.getEC2().attachVolume({VolumeId: volumeId, InstanceId: instanceId, Device: '/dev/sdh'}, function (err, result) {
+            if (err) {
+                console.log("EC2Service: in attachVolume: " + err);
+            } else {
+                callback.callback();
+            }
+
+        });
+    }
+
+    waitForAttached(volumeId: string, callback: Callback) {
+        this.getEC2().waitFor('volumeInUse', {VolumeIds: [volumeId]}, function(err, result) {
+            if (err) {
+                console.log("EC2Service: in waitForAttached: " + err);
+            } else {
+                callback.callback();
+            }
+        });
+    }
+
+    detachVolume(volumeId: string, callback: Callback) {
+        this.getEC2().detachVolume({VolumeId: volumeId}, function (err, result) {
+            if (err) {
+                console.log("EC2Service: in detachVolume: " + err);
+            } else {
+                callback.callback();
+            }
+
+        });
+    }
+
+    waitForDetached(volumeId: string, callback: Callback) {
+        this.getEC2().waitFor('volumeAvailable', {VolumeIds: [volumeId]}, function(err, result) {
+            if (err) {
+                console.log("EC2Service: in waitForDetached: " + err);
+            } else {
+                callback.callback();
+            }
+        });
+    }
+
 }

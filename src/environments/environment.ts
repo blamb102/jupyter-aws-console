@@ -11,6 +11,7 @@ export const environment = {
     bucketRegion: 'us-west-2',
 
     ec2region: 'us-west-2',
+    jupyterVolumeId: 'vol-0d1867e98dc62503e',
 
     ddbTableName: 'brianlambson-angular2-app',
 

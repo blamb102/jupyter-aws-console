@@ -3,21 +3,28 @@
 <div class="table-responsive">
     <table class="table table-hover table-striped">
         <tr>
+            <th>Name</th>
             <th>Type</th>
+            <th>Notebook Volume</th>
             <th>State</th>
             <th>Action</th>
             <th>Connect</th>
         </tr>
         <tr *ngFor="let instance of instances" class="active">
+            <td>{{ instance.name }}</td>
             <td>{{ instance.type }}</td>
+            <td>
+              <input type="radio" (change)="onMoveVolume(instance.id)" [checked]="volume.attachment==instance.id" [disabled]="!(volume.state=='attached' || volume.state=='detached') && volume.availability=='in-use'">
+              {{volume.attachment==instance.id && volume.state || ''}}
+            </td>
             <td>{{ instance.state }}</td>
             <td>
-              <button [disabled]="!(instance.state=='running' || instance.state=='stopped')" (click)="onAction(instance)" id="action" class="btn btn-info btn-block">
+              <button [disabled]="!(instance.state=='running' || instance.state=='stopped') || !(volume.attachment==instance.id && volume.state=='attached')" (click)="onAction(instance)" id="action" class="btn btn-info btn-block">
                   {{instance.state=='stopped' && 'Launch' || 'Stop'}}
               </button>
             </td>
             <td>
-              <button [disabled]="!(instance.state=='running')" (click)="onConnect(instance.ip)" id="connect" class="btn btn-info btn-block">
+              <button [disabled]="!(instance.state=='running')" (click)="onConnect()" id="connect" class="btn btn-info btn-block">
                   Connect
               </button>
             </td>
