@@ -82,11 +82,12 @@ export class GetInstancesCallback implements Callback {
         this.me.liveInstances = false;
         for (let i = 0; i < result.length; i++) {
             for (let j = 0; j < result[i].Instances.length; j++){
+                if (result[i].Instances[j].State.Name=='terminated') { continue; }
                 let instance = new Instances();
                 instance.id = result[i].Instances[j].InstanceId;
                 instance.type = result[i].Instances[j].InstanceType;
                 instance.state = result[i].Instances[j].State.Name;
-                if(instance.state != 'stopped') { this.me.liveInstances = true }
+                if (instance.state != 'stopped') { this.me.liveInstances = true }
                 instance.ip = result[i].Instances[j].PublicIpAddress;
                 instance.name = 'no-name'
                 for(let k = 0; k < result[i].Instances[j].Tags.length; k++) {
