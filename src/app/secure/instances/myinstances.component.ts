@@ -31,6 +31,7 @@ export class MyInstancesComponent implements LoggedInCallback {
     public instances: Array<Instances> = [];
     public volume: Volume = new Volume();
     public cognitoId: String;
+    public liveInstances: Boolean = false;
 
     constructor(public router: Router, public userService: UserLoginService, public ec2: EC2Service, public cf: CFService) {
         this.volume.volumeId = environment.jupyterVolumeId;
@@ -64,7 +65,7 @@ export class MyInstancesComponent implements LoggedInCallback {
       if (this.volume.availability=='in-use') {
         this.ec2.detachVolume(this.volume.volumeId, new DetachVolumeCallback(this, instanceId));
       } else {
-        this.ec2.attachVolume(this.volume.volumeId, instanceId, new AttachVolumeCallback(this))
+        this.ec2.attachVolume(this.volume.volumeId, instanceId, new VolumeAttachedCallback(this))
       }
     }
 
@@ -78,12 +79,14 @@ export class GetInstancesCallback implements Callback {
 
     callbackWithParam(result: any) {
         this.me.instances = [];
+        this.me.liveInstances = false;
         for (let i = 0; i < result.length; i++) {
             for (let j = 0; j < result[i].Instances.length; j++){
                 let instance = new Instances();
                 instance.id = result[i].Instances[j].InstanceId;
                 instance.type = result[i].Instances[j].InstanceType;
                 instance.state = result[i].Instances[j].State.Name;
+                if(instance.state != 'stopped') { this.me.liveInstances = true }
                 instance.ip = result[i].Instances[j].PublicIpAddress;
                 instance.name = 'no-name'
                 for(let k = 0; k < result[i].Instances[j].Tags.length; k++) {
@@ -95,19 +98,6 @@ export class GetInstancesCallback implements Callback {
             }
         }
 
-    }
-}
-
-export class DescribeVolumeCallback implements Callback {
-
-    constructor(public me: MyInstancesComponent) {}
-
-    callback() {}
-
-    callbackWithParam(result: any) {
-        this.me.volume.attachment = result.InstanceId;
-        this.me.volume.state = result.State;
-        this.me.volume.availability = result.Availability;
     }
 }
 
@@ -159,6 +149,19 @@ export class InstanceStoppedCallback implements Callback {
     callbackWithParam(result: any) {}
 }
 
+export class DescribeVolumeCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent) {}
+
+    callback() {}
+
+    callbackWithParam(result: any) {
+        this.me.volume.attachment = result.InstanceId;
+        this.me.volume.state = result.State;
+        this.me.volume.availability = result.Availability;
+    }
+}
+
 export class DetachVolumeCallback implements Callback {
 
     constructor(public me: MyInstancesComponent, public instanceId: string) {}
@@ -176,19 +179,8 @@ export class VolumeDetachedCallback implements Callback {
     constructor(public me: MyInstancesComponent, public instanceId: string) {}
 
     callback() {
-        this.me.ec2.attachVolume(this.me.volume.volumeId, this.instanceId, new AttachVolumeCallback(this.me));
+        this.me.ec2.attachVolume(this.me.volume.volumeId, this.instanceId, new VolumeAttachedCallback(this.me));
         this.me.ec2.describeVolume(this.me.volume.volumeId, new DescribeVolumeCallback(this.me));
-    }
-
-    callbackWithParam(result: any) {}
-}
-
-export class AttachVolumeCallback implements Callback {
-
-    constructor(public me: MyInstancesComponent) {}
-
-    callback() {
-        this.me.ec2.waitForAttached(this.me.volume.volumeId, new VolumeAttachedCallback(this.me))
     }
 
     callbackWithParam(result: any) {}

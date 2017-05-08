@@ -106,7 +106,10 @@ export class EC2Service {
                       Availability: result.Volumes[0].State
                     });
                 } else {
-                    callback.callbackWithParam({InstanceId: '', State: '', Availability:''});
+                    callback.callbackWithParam({
+                      InstanceId: 'none',
+                      State: 'none',
+                      Availability: result.Volumes[0].State});
                 }
             }
         });

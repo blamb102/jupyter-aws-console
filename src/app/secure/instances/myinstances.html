@@ -5,7 +5,7 @@
         <tr>
             <th>Name</th>
             <th>Type</th>
-            <th>Notebook Volume</th>
+            <th>Shared Notebook Volume</th>
             <th>State</th>
             <th>Action</th>
             <th>Connect</th>
@@ -14,17 +14,18 @@
             <td>{{ instance.name }}</td>
             <td>{{ instance.type }}</td>
             <td>
-              <input type="radio" (change)="onMoveVolume(instance.id)" [checked]="volume.attachment==instance.id" [disabled]="!(volume.state=='attached' || volume.state=='detached') && volume.availability=='in-use'">
+              <input type="radio" (change)="onMoveVolume(instance.id)" [checked]="volume.attachment==instance.id" [disabled]="(!(volume.state=='attached' || volume.state=='detached') && volume.availability=='in-use')|| liveInstances">
               {{volume.attachment==instance.id && volume.state || ''}}
             </td>
             <td>{{ instance.state }}</td>
             <td>
-              <button [disabled]="!(instance.state=='running' || instance.state=='stopped') || !(volume.attachment==instance.id && volume.state=='attached')" (click)="onAction(instance)" id="action" class="btn btn-info btn-block">
+              <button [disabled]="!(instance.state=='running' || instance.state=='stopped') || !(volume.attachment==instance.id && volume.state=='attached')" (click)="onAction(instance)" id="action" [class]="!(volume.attachment==instance.id) ? 'btn btn btn-block' : instance.state=='running' ? 'btn btn-danger btn-block' : 'btn btn-info btn-block'">
                   {{instance.state=='stopped' && 'Launch' || 'Stop'}}
               </button>
             </td>
             <td>
-              <button [disabled]="!(instance.state=='running')" (click)="onConnect()" id="connect" class="btn btn-info btn-block">
+
+              <button [disabled]="!(instance.state=='running')" (click)="onConnect()" id="connect" [class]="(!(volume.attachment==instance.id) || !(instance.state=='running')) ? 'btn btn btn-block' : 'btn btn-success btn-block'">
                   Connect
               </button>
             </td>
