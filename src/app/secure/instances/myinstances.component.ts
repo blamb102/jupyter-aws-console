@@ -44,16 +44,16 @@ export class MyInstancesComponent implements LoggedInCallback {
             this.router.navigate(['/home/login']);
         } else {
             this.ec2.listInstances(new GetInstancesCallback(this));
-            this.ec2.describeVolume(this.volume.volumeId, new DescribeVolumeCallback(this))
+            this.ec2.describeVolume(this.volume.volumeId, new DescribeVolumeCallback(this));
         }
     }
 
     onAction(instance: Instances) {
         if (instance.state=='stopped') {
-            this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance))
+            this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance));
         }
         if (instance.state=='running') {
-            this.ec2.stopInstance(instance.id, new StopInstanceCallback(this, instance))
+            this.ec2.stopInstance(instance.id, new StopInstanceCallback(this, instance));
         }
     }
 
@@ -65,7 +65,7 @@ export class MyInstancesComponent implements LoggedInCallback {
       if (this.volume.availability=='in-use') {
         this.ec2.detachVolume(this.volume.volumeId, new DetachVolumeCallback(this, instanceId));
       } else {
-        this.ec2.attachVolume(this.volume.volumeId, instanceId, new VolumeAttachedCallback(this))
+        this.ec2.attachVolume(this.volume.volumeId, instanceId, new VolumeAttachedCallback(this));
       }
     }
 
@@ -82,7 +82,7 @@ export class GetInstancesCallback implements Callback {
         this.me.liveInstances = false;
         for (let i = 0; i < result.length; i++) {
             for (let j = 0; j < result[i].Instances.length; j++){
-                if (result[i].Instances[j].State.Name=='terminated') { continue; }
+                if (result[i].Instances[j].State.Name == 'terminated') { continue; }
                 let instance = new Instances();
                 instance.id = result[i].Instances[j].InstanceId;
                 instance.type = result[i].Instances[j].InstanceType;
@@ -107,8 +107,26 @@ export class StartInstanceCallback implements Callback {
     constructor(public me: MyInstancesComponent, public instance: Instances) {}
 
     callback() {
-        this.me.ec2.waitForRunning(this.instance.id, new InstanceRunningCallback(this.me, this.instance));
+        let irc = new InstanceRunningCallback(this.me, this.instance);
+        let wfrc = new WaitForRunningCallback(this.me, this.instance, irc)
+        this.me.ec2.checkIfRunning(this.instance.id, irc, wfrc);
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
+    }
+
+    callbackWithParam(result: any) {}
+}
+
+export class WaitForRunningCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent, public instance: Instances, public irc: InstanceRunningCallback) {}
+
+    private sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async callback() {
+        await this.sleep(2000);
+        this.me.ec2.checkIfRunning(this.instance.id, this.irc, this);
     }
 
     callbackWithParam(result: any) {}
@@ -131,8 +149,26 @@ export class StopInstanceCallback implements Callback {
     constructor(public me: MyInstancesComponent, public instance: Instances) {}
 
     callback() {
-        this.me.ec2.waitForStopped(this.instance.id, new InstanceStoppedCallback(this.me));
-        this.me.ec2.listInstances(new GetInstancesCallback(this.me));
+      let isc = new InstanceStoppedCallback(this.me);
+      let wfsc = new WaitForStoppedCallback(this.me, this.instance, isc)
+      this.me.ec2.checkIfStopped(this.instance.id, isc, wfsc);
+      this.me.ec2.listInstances(new GetInstancesCallback(this.me));
+    }
+
+    callbackWithParam(result: any) {}
+}
+
+export class WaitForStoppedCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent, public instance: Instances, public isc: InstanceStoppedCallback) {}
+
+    private sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async callback() {
+        await this.sleep(2000);
+        this.me.ec2.checkIfStopped(this.instance.id, this.isc, this);
     }
 
     callbackWithParam(result: any) {}
@@ -168,8 +204,26 @@ export class DetachVolumeCallback implements Callback {
     constructor(public me: MyInstancesComponent, public instanceId: string) {}
 
     callback() {
-        this.me.ec2.waitForDetached(this.me.volume.volumeId, new VolumeDetachedCallback(this.me, this.instanceId));
+        let vdc = new VolumeDetachedCallback(this.me, this.instanceId);
+        let wfdc = new WaitForDetachedCallback(this.me, vdc)
+        this.me.ec2.checkIfDetached(this.me.volume.volumeId, vdc, wfdc);
         this.me.ec2.describeVolume(this.me.volume.volumeId, new DescribeVolumeCallback(this.me));
+    }
+
+    callbackWithParam(result: any) {}
+}
+
+export class WaitForDetachedCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent, public vdc: VolumeDetachedCallback) {}
+
+    private sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async callback() {
+        await this.sleep(2000);
+        this.me.ec2.checkIfDetached(this.me.volume.volumeId , this.vdc, this);
     }
 
     callbackWithParam(result: any) {}
@@ -180,8 +234,38 @@ export class VolumeDetachedCallback implements Callback {
     constructor(public me: MyInstancesComponent, public instanceId: string) {}
 
     callback() {
-        this.me.ec2.attachVolume(this.me.volume.volumeId, this.instanceId, new VolumeAttachedCallback(this.me));
+        this.me.ec2.attachVolume(this.me.volume.volumeId, this.instanceId, new AttachVolumeCallback(this.me));
         this.me.ec2.describeVolume(this.me.volume.volumeId, new DescribeVolumeCallback(this.me));
+    }
+
+    callbackWithParam(result: any) {}
+}
+
+export class AttachVolumeCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent) {}
+
+    callback() {
+        let vac = new VolumeAttachedCallback(this.me);
+        let wfac = new WaitForAttachedCallback(this.me, vac)
+        this.me.ec2.checkIfAttached(this.me.volume.volumeId, vac, wfac);
+        this.me.ec2.describeVolume(this.me.volume.volumeId, new DescribeVolumeCallback(this.me));
+    }
+
+    callbackWithParam(result: any) {}
+}
+
+export class WaitForAttachedCallback implements Callback {
+
+    constructor(public me: MyInstancesComponent, public vac: VolumeAttachedCallback) {}
+
+    private sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async callback() {
+        await this.sleep(2000);
+        this.me.ec2.checkIfAttached(this.me.volume.volumeId, this.vac, this);
     }
 
     callbackWithParam(result: any) {}

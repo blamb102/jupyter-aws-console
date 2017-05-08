@@ -42,6 +42,16 @@ export class EC2Service {
         });
     }
 
+    getInstanceDnsName(instanceId: string, callback: Callback) {
+        this.getEC2().describeInstances({InstanceIds: [instanceId]}, function(err, result) {
+            if (err) {
+                console.log("EC2Service: in getInstanceDnsName: " + err);
+            } else {
+                callback.callbackWithParam(result.Reservations[0].Instances[0].PublicDnsName);
+            }
+        });
+    }
+
     startInstance(instanceId: string, callback: Callback) {
         this.getEC2().startInstances({InstanceIds: [instanceId]}, function (err, result) {
             if (err) {
@@ -50,26 +60,6 @@ export class EC2Service {
                 callback.callback();
             }
 
-        });
-    }
-
-    waitForRunning(instanceId: string, callback: Callback) {
-        this.getEC2().waitFor('instanceRunning', {InstanceIds: [instanceId]}, function(err, result) {
-            if (err) {
-                console.log("EC2Service: in waitForRunning: " + err);
-            } else {
-                callback.callback();
-            }
-        });
-    }
-
-    getInstanceDnsName(instanceId: string, callback: Callback) {
-        this.getEC2().describeInstances({InstanceIds: [instanceId]}, function(err, result) {
-            if (err) {
-                console.log("EC2Service: in getInstanceDnsName: " + err);
-            } else {
-                callback.callbackWithParam(result.Reservations[0].Instances[0].PublicDnsName);
-            }
         });
     }
 
@@ -84,14 +74,32 @@ export class EC2Service {
         });
     }
 
-    waitForStopped(instanceId: string, callback: Callback) {
-        this.getEC2().waitFor('instanceStopped', {InstanceIds: [instanceId]}, function(err, result) {
-            if (err) {
-                console.log("EC2Service: in waitForStopped: " + err);
-            } else {
-                callback.callback();
-            }
-        });
+    checkIfRunning(instanceId: string, isRunningCallback: Callback, notRunningCallback: Callback) {
+      this.getEC2().describeInstances({InstanceIds: [instanceId]}, function(err, result) {
+          if (err) {
+              console.log("EC2Service: in checkIfRunning: " + err);
+          } else {
+              if (result.Reservations[0].Instances[0].State.Name=='running') {
+                isRunningCallback.callback();
+              } else {
+                notRunningCallback.callback();
+              }
+          }
+      });
+    }
+
+    checkIfStopped(instanceId: string, isStoppedCallback: Callback, notStoppedCallback: Callback) {
+      this.getEC2().describeInstances({InstanceIds: [instanceId]}, function(err, result) {
+          if (err) {
+              console.log("EC2Service: in checkIfRunning: " + err);
+          } else {
+              if (result.Reservations[0].Instances[0].State.Name=='stopped') {
+                isStoppedCallback.callback();
+              } else {
+                notStoppedCallback.callback();
+              }
+          }
+      });
     }
 
     describeVolume(volumeId: string, callback: Callback) {
@@ -126,16 +134,6 @@ export class EC2Service {
         });
     }
 
-    waitForAttached(volumeId: string, callback: Callback) {
-        this.getEC2().waitFor('volumeInUse', {VolumeIds: [volumeId]}, function(err, result) {
-            if (err) {
-                console.log("EC2Service: in waitForAttached: " + err);
-            } else {
-                callback.callback();
-            }
-        });
-    }
-
     detachVolume(volumeId: string, callback: Callback) {
         this.getEC2().detachVolume({VolumeId: volumeId}, function (err, result) {
             if (err) {
@@ -147,14 +145,36 @@ export class EC2Service {
         });
     }
 
-    waitForDetached(volumeId: string, callback: Callback) {
-        this.getEC2().waitFor('volumeAvailable', {VolumeIds: [volumeId]}, function(err, result) {
-            if (err) {
-                console.log("EC2Service: in waitForDetached: " + err);
-            } else {
-                callback.callback();
-            }
-        });
+    checkIfDetached(volumeId: string, isDetachedCallback: Callback, notDetachedCallback: Callback) {
+      this.getEC2().describeVolumes({VolumeIds: [volumeId]}, function(err, result) {
+          if (err) {
+              console.log("EC2Service: in checkIfRunning: " + err);
+          } else {
+              if (result.Volumes[0].State=='available') {
+                isDetachedCallback.callback();
+              } else {
+                notDetachedCallback.callback();
+              }
+          }
+      });
+    }
+
+    checkIfAttached(volumeId: string, isAttachedCallback: Callback, notAttachedCallback: Callback) {
+      this.getEC2().describeVolumes({VolumeIds: [volumeId]}, function(err, result) {
+          if (err) {
+              console.log("EC2Service: in checkIfRunning: " + err);
+          } else {
+              if (result.Volumes[0].Attachments.length > 0) {
+                  if (result.Volumes[0].Attachments[0].State=='attached') {
+                    isAttachedCallback.callback();
+                  } else {
+                    notAttachedCallback.callback();
+                  }
+              } else {
+                  notAttachedCallback.callback();
+              }
+          }
+      });
     }
 
 }
