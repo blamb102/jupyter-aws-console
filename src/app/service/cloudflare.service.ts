@@ -38,11 +38,11 @@ export class CFService {
 
     restoreDefaultCnameRecord(application: string) {
         console.log("CFService: in restoreDefaultCnameRecord()");
-        this.getCfCredentials(new CfCredentialsReceivedCallback(this, application+'.'+environment.defaultURL, application));
+        this.getCfCredentials(application, new CfCredentialsReceivedCallback(this, application+'.'+environment.defaultURL, application));
     }
 
-    getCfCredentials(callback: Callback) {
-        this.s3.getBucketTags('jupyter.'+environment.baseURL, callback);
+    getCfCredentials(application: string, callback: Callback) {
+        this.s3.getBucketTags(application+'.'+environment.baseURL, callback);
     }
 
     makeCfApiCall(dns: DNS, cname_target: string, application): Observable<CFAPI>{
@@ -92,7 +92,7 @@ export class CnameTargetReceivedCallback implements Callback {
     callback() {}
 
     callbackWithParam(cname_target: string) {
-        this.me.getCfCredentials(new CfCredentialsReceivedCallback(this.me, cname_target, this.application));
+        this.me.getCfCredentials(this.application, new CfCredentialsReceivedCallback(this.me, cname_target, this.application));
     }
 }
 

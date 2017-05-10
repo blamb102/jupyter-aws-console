@@ -60,7 +60,12 @@ export class MyInstancesComponent implements LoggedInCallback {
     }a
 
     onConnect(application: string) {
-        var newWindow = window.open(`http://${application}.brianlambson.com`);
+        if (application=='jupyter') {
+            var newWindow = window.open(`http://jupyter.brianlambson.com`);
+        } else if (application=='che') {
+            var newWindow = window.open(`http://che.brianlambson.com/dashboard`);
+        }
+
     }
 
     onMoveVolume(instanceId: string) {
