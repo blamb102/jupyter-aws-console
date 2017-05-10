@@ -31,26 +31,26 @@ export class CFService {
     constructor(public s3: S3Service, public ec2: EC2Service, public http: Http) {
     }
 
-    updateCnameRecord(instanceId: string) {
+    updateCnameRecord(instanceId: string, application: string) {
         console.log("CFService: in updateCnameRecord()");
-        this.ec2.getInstanceDnsName(instanceId, new CnameTargetReceivedCallback(this));
+        this.ec2.getInstanceDnsName(instanceId, new CnameTargetReceivedCallback(this, application));
     }
 
-    restoreDefaultCnameRecord() {
+    restoreDefaultCnameRecord(application: string) {
         console.log("CFService: in restoreDefaultCnameRecord()");
-        this.getCfCredentials(new CfCredentialsReceivedCallback(this, environment.jupyterDefault));
+        this.getCfCredentials(new CfCredentialsReceivedCallback(this, application+'.'+environment.defaultURL, application));
     }
 
     getCfCredentials(callback: Callback) {
-        this.s3.getBucketTags(environment.jupyterServer, callback);
+        this.s3.getBucketTags('jupyter.'+environment.baseURL, callback);
     }
 
-    makeCfApiCall(dns: DNS, cname_target: string): Observable<CFAPI>{
+    makeCfApiCall(dns: DNS, cname_target: string, application): Observable<CFAPI>{
         let headers = new Headers({'X-Auth-Email':dns.user, 'X-Auth-Key': dns.key, 'Content-Type': 'application/json'});
         let url = `https://api.cloudflare.com/client/v4/zones/${dns.zone}/dns_records/${dns.record}`;
         let api_data = {
             type: 'CNAME',
-            name: environment.jupyterServer,
+            name: application+'.'+environment.baseURL,
             content: cname_target,
             ttl: 1,
             proxied: true
@@ -87,21 +87,18 @@ export class CFService {
 
 export class CnameTargetReceivedCallback implements Callback {
 
-    constructor(public me: CFService) {}
+    constructor(public me: CFService, public application: string) {}
 
     callback() {}
 
     callbackWithParam(cname_target: string) {
-        this.me.getCfCredentials(new CfCredentialsReceivedCallback(this.me, cname_target));
+        this.me.getCfCredentials(new CfCredentialsReceivedCallback(this.me, cname_target, this.application));
     }
 }
 
 export class CfCredentialsReceivedCallback implements Callback {
 
-    response: Object;
-    success: Boolean;
-
-    constructor(public me: CFService, public cname_target: string) {}
+    constructor(public me: CFService, public cname_target: string, public application: string) {}
 
     callback() {}
 
@@ -119,10 +116,7 @@ export class CfCredentialsReceivedCallback implements Callback {
               dns.record = result[i].Value;
             }
         }
-        this.me.makeCfApiCall(dns, this.cname_target)
-            .subscribe(
-                 result =>  this.response = result,
-                 success =>  this.success = success);
+        this.me.makeCfApiCall(dns, this.cname_target, this.application).subscribe();
     }
 
 }
