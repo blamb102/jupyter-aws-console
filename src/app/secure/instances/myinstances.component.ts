@@ -28,7 +28,8 @@ declare var AWS: any;
 })
 export class MyInstancesComponent implements LoggedInCallback {
 
-    public instances: Array<Instances> = [];
+    public nb_instances: Array<Instances> = [];
+    public che_instances: Array<Instances> = [];
     public volume: Volume = new Volume();
     public cognitoId: String;
     public liveInstances: Boolean = false;
@@ -48,17 +49,18 @@ export class MyInstancesComponent implements LoggedInCallback {
         }
     }
 
-    onAction(instance: Instances) {
+    onAction(instance: Instances, application: string) {
         if (instance.state=='stopped') {
-            this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance));
+            this.ec2.startInstance(instance.id, new StartInstanceCallback(this, instance, application));
         }
         if (instance.state=='running') {
             this.ec2.stopInstance(instance.id, new StopInstanceCallback(this, instance));
+            this.cf.restoreDefaultCnameRecord(application);
         }
-    }
+    }a
 
-    onConnect() {
-        var newWindow = window.open('http://jupyter.brianlambson.com');
+    onConnect(application: string) {
+        var newWindow = window.open(`http://${application}.brianlambson.com`);
     }
 
     onMoveVolume(instanceId: string) {
@@ -78,7 +80,8 @@ export class GetInstancesCallback implements Callback {
     callback() {}
 
     callbackWithParam(result: any) {
-        this.me.instances = [];
+        this.me.nb_instances = [];
+        this.me.che_instances = [];
         this.me.liveInstances = false;
         for (let i = 0; i < result.length; i++) {
             for (let j = 0; j < result[i].Instances.length; j++){
@@ -87,15 +90,23 @@ export class GetInstancesCallback implements Callback {
                 instance.id = result[i].Instances[j].InstanceId;
                 instance.type = result[i].Instances[j].InstanceType;
                 instance.state = result[i].Instances[j].State.Name;
-                if (instance.state != 'stopped') { this.me.liveInstances = true }
                 instance.ip = result[i].Instances[j].PublicIpAddress;
-                instance.name = 'no-name'
+                instance.name = 'no-name';
+                let application = 'none';
                 for(let k = 0; k < result[i].Instances[j].Tags.length; k++) {
                   if (result[i].Instances[j].Tags[k].Key=='Name'){
-                    instance.name = result[i].Instances[j].Tags[k].Value;
+                      instance.name = result[i].Instances[j].Tags[k].Value;
+                  } else if (result[i].Instances[j].Tags[k].Key=='application') {
+                      application = result[i].Instances[j].Tags[k].Value;
                   }
                 }
-                this.me.instances.push(instance);
+                if (application == 'jupyter') {
+                    if (instance.state != 'stopped') { this.me.liveInstances = true }
+                    this.me.nb_instances.push(instance);
+                } else if (application == 'che') {
+                    this.me.che_instances.push(instance);
+                }
+
             }
         }
 
@@ -104,10 +115,10 @@ export class GetInstancesCallback implements Callback {
 
 export class StartInstanceCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent, public instance: Instances) {}
+    constructor(public me: MyInstancesComponent, public instance: Instances, public application: string) {}
 
     callback() {
-        let irc = new InstanceRunningCallback(this.me, this.instance);
+        let irc = new InstanceRunningCallback(this.me, this.instance, this.application);
         let wfrc = new WaitForRunningCallback(this.me, this.instance, irc)
         this.me.ec2.checkIfRunning(this.instance.id, irc, wfrc);
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
@@ -134,10 +145,10 @@ export class WaitForRunningCallback implements Callback {
 
 export class InstanceRunningCallback implements Callback {
 
-    constructor(public me: MyInstancesComponent, public instance: Instances) {}
+    constructor(public me: MyInstancesComponent, public instance: Instances, public application: string) {}
 
     callback() {
-        this.me.cf.updateCnameRecord(this.instance.id);
+        this.me.cf.updateCnameRecord(this.instance.id, this.application);
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 
@@ -179,7 +190,6 @@ export class InstanceStoppedCallback implements Callback {
     constructor(public me: MyInstancesComponent) {}
 
     callback() {
-        this.me.cf.restoreDefaultCnameRecord();
         this.me.ec2.listInstances(new GetInstancesCallback(this.me));
     }
 

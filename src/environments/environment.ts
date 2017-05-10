@@ -17,6 +17,6 @@ export const environment = {
 
     corsProxy: 'https://cors-anywhere.herokuapp.com/',
 
-    jupyterServer: 'jupyter.brianlambson.com',
-    jupyterDefault: 'jupyter.brianlambson.com.s3-website-us-west-2.amazonaws.com'
+    baseURL: 'brianlambson.com',
+    defaultURL: 'brianlambson.com.s3-website-us-west-2.amazonaws.com'
 };

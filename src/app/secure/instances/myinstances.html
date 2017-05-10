@@ -1,5 +1,7 @@
-<h1 class="page-header">Jupyter Instances</h1>
+<h1 class="page-header">My Instances</h1>
 
+
+<h3>Jupyter Instances</h3>
 <div class="table-responsive">
     <table class="table table-hover table-striped">
         <tr>
@@ -10,7 +12,7 @@
             <th>Action</th>
             <th>Connect</th>
         </tr>
-        <tr *ngFor="let instance of instances" class="active">
+        <tr *ngFor="let instance of nb_instances" class="active">
             <td>{{ instance.name }}</td>
             <td>{{ instance.type }}</td>
             <td>
@@ -19,13 +21,43 @@
             </td>
             <td>{{ instance.state }}</td>
             <td>
-              <button [disabled]="!(instance.state=='running' || instance.state=='stopped') || !(volume.attachment==instance.id && volume.state=='attached')" (click)="onAction(instance)" id="action" [class]="!(volume.attachment==instance.id) ? 'btn btn btn-block' : instance.state=='running' ? 'btn btn-danger btn-block' : 'btn btn-info btn-block'">
-                  {{instance.state=='stopped' && 'Launch' || 'Stop'}}
+              <button [disabled]="!(instance.state=='running' || instance.state=='stopped') || !(volume.attachment==instance.id && volume.state=='attached')" (click)="onAction(instance, 'jupyter')" id="action" [class]="!(volume.attachment==instance.id) ? 'btn btn btn-block' : instance.state=='running' ? 'btn btn-danger btn-block' : 'btn btn-info btn-block'">
+                  {{instance.state=='running' && 'Stop' || 'Launch'}}
               </button>
             </td>
             <td>
 
-              <button [disabled]="!(instance.state=='running')" (click)="onConnect()" id="connect" [class]="(!(volume.attachment==instance.id) || !(instance.state=='running')) ? 'btn btn btn-block' : 'btn btn-success btn-block'">
+              <button [disabled]="!(instance.state=='running')" (click)="onConnect('jupyter')" id="connect" [class]="(!(volume.attachment==instance.id) || !(instance.state=='running')) ? 'btn btn btn-block' : 'btn btn-success btn-block'">
+                  Connect
+              </button>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+<h3>Eclipse Che Instances</h3>
+<div class="table-responsive">
+    <table class="table table-hover table-striped">
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>State</th>
+            <th>Action</th>
+            <th>Connect</th>
+        </tr>
+        <tr *ngFor="let instance of che_instances" class="active">
+            <td>{{ instance.name }}</td>
+            <td>{{ instance.type }}</td>
+            <td>{{ instance.state }}</td>
+            <td>
+              <button [disabled]="!(instance.state=='running' || instance.state=='stopped')" (click)="onAction(instance, 'che')" id="action" [class]="instance.state=='running' ? 'btn btn-danger btn-block' : 'btn btn-info btn-block'">
+                  {{instance.state=='running' && 'Stop' || 'Launch'}}
+              </button>
+            </td>
+            <td>
+
+              <button [disabled]="!(instance.state=='running')" (click)="onConnect('che')" id="connect" [class]="(!(instance.state=='running')) ? 'btn btn btn-block' : 'btn btn-success btn-block'">
                   Connect
               </button>
             </td>
