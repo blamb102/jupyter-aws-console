@@ -33,6 +33,7 @@ export class MyInstancesComponent implements LoggedInCallback {
     public volume: Volume = new Volume();
     public cognitoId: String;
     public liveInstances: Boolean = false;
+    public disableVolumeInputs: Boolean = false;
 
     constructor(public router: Router, public userService: UserLoginService, public ec2: EC2Service, public cf: CFService) {
         this.volume.volumeId = environment.jupyterVolumeId;
@@ -69,6 +70,7 @@ export class MyInstancesComponent implements LoggedInCallback {
     }
 
     onMoveVolume(instanceId: string) {
+      this.disableVolumeInputs = true;
       if (this.volume.availability=='in-use') {
         this.ec2.detachVolume(this.volume.volumeId, new DetachVolumeCallback(this, instanceId));
       } else {
@@ -293,6 +295,7 @@ export class VolumeAttachedCallback implements Callback {
     callback() {
         console.log('MyInstancesComponent: Volume Attached to Instance')
         this.me.ec2.describeVolume(this.me.volume.volumeId, new DescribeVolumeCallback(this.me))
+        this.me.disableVolumeInputs = false;
     }
 
     callbackWithParam(result: any) {}

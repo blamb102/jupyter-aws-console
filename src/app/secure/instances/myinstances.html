@@ -16,7 +16,7 @@
             <td>{{ instance.name }}</td>
             <td>{{ instance.type }}</td>
             <td>
-              <input type="radio" (change)="onMoveVolume(instance.id)" [checked]="volume.attachment==instance.id" [disabled]="(!(volume.state=='attached' || volume.state=='detached') && volume.availability=='in-use')|| liveInstances">
+              <input type="radio" name="volume" (change)="onMoveVolume(instance.id)" [checked]="volume.attachment==instance.id" [disabled]=disableVolumeInputs> <!--"(!(volume.state=='attached' || volume.state=='detached') && volume.availability=='in-use')|| liveInstances"-->
               {{volume.attachment==instance.id && volume.state || ''}}
             </td>
             <td>{{ instance.state }}</td>
