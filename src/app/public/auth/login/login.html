@@ -5,11 +5,6 @@
     <div *ngIf="errorMessage!=null" class="alert alert-danger">
         {{ errorMessage }}
     </div>
-    <div class="form-group">
-        <label class="control-label" for="signupEmail">Email</label>
-        <input id="signupEmail" required type="email" maxlength="100" class="form-control" [(ngModel)]="email"
-               [ngModelOptions]="{standalone: true}">
-    </div>
 
     <div class="form-group">
         <label class="control-label" for="signupPassword">Password</label>

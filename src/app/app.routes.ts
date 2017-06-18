@@ -14,7 +14,7 @@ import {LogoutComponent} from "./public/auth/logout/logout.component";
 const homeRoutes: Routes = [
     {
         path: '',
-        redirectTo: '/home',
+        redirectTo: '/home/login',
         pathMatch: 'full'
     },
     {

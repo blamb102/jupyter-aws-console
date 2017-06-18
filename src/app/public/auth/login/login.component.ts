@@ -8,7 +8,6 @@ import {DynamoDBService} from "../../../service/ddb.service";
     templateUrl: './login.html'
 })
 export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit {
-    email: string;
     password: string;
     errorMessage: string;
 
@@ -25,12 +24,13 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
     }
 
     onLogin() {
-        if (this.email == null || this.password == null) {
-            this.errorMessage = "All fields are required";
+        if (this.password == null) {
+            this.errorMessage = "Password required";
             return;
         }
+        let email = "me@brianlambson.com"
         this.errorMessage = null;
-        this.userService.authenticate(this.email, this.password, this);
+        this.userService.authenticate(email, this.password, this);
     }
 
     cognitoCallback(message: string, result: any) {
