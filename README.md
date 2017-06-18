@@ -1,13 +1,9 @@
-Cognito Quickstart
+Jupyter-AWS console
 ===================================================
-
-## What does this app do?
-![QuickStart Angular2 Cognito App](/aws/meta/Cognito-Angular2-QuickStart.png?raw=true)
 
 ## Tech Stack
 ### Required Tools
 * [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html)
-* [eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html)
 * [npm](https://www.npmjs.com/)
 * [angular-cli](https://github.com/angular/angular-cli)
 
@@ -22,18 +18,17 @@ Cognito Quickstart
 * Create an AWS account
 * Install [npm](https://www.npmjs.com/)
 * [Install or update your aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) 
-* [Install or update your eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html) 
 * [Install angular-cli](https://github.com/angular/angular-cli)
 
 
 ## Getting the code and running it locally
 ```
 # Clone it from github
-git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
+git clone --depth 1 git@github.com:blamb102/jupyter-aws-console.git
 ```
 ```
 # Install the NPM packages
-cd aws-cognito-angular2-quickstart
+cd jupyter-aws-console
 npm install
 ```
 ```
@@ -41,37 +36,6 @@ npm install
 npm start
 ```
 
-## Creating AWS Resources
-This sample application can be deployed to either Elastic Beanstalk or S3. S3 will host this application as a static site
-while Elastic Beanstalk gives you the capability of adding backend operations to the application. 
-
-* [What is Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html)
-* [What is S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html)
-
-** createResources.sh requires your [aws cli to be configured](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html) for JSON output.  **
-
-```
-# Install the AWS resources and deploy your application to either Elastic Beanstalk or S3
-cd aws
-./createResources.sh
-```
-
-Running the above command will create the necessary AWS resources and build & deploy your code to AWS. It will prompt you to choose your deployment target (S3 or Elastic Beanstalk). 
-
-## After initially running the ```createResources.sh``` script, use the below commands to rebuild and redeploy
-
-### Update, Build and Deploy to Elastic Beanstalk
-
-```
-# Commit your changes in order to deploy it to your environment
-git add .
-git commit
-eb deploy
-```
-```
-# View your deployed application in a browser
-eb open
-```
 
 ### Update, Build and Deploy to S3
 ```
