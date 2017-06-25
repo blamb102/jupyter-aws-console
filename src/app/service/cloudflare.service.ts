@@ -23,6 +23,8 @@ export class DNS {
     key: string;
     zone: string;
     record: string;
+    has_alt_record: Boolean;
+    alt_record: string;
 }
 
 @Injectable()
@@ -45,7 +47,7 @@ export class CFService {
         this.s3.getBucketTags(application+'.'+environment.baseURL, callback);
     }
 
-    makeCfApiCall(dns: DNS, cname_target: string, application): Observable<CFAPI>{
+    makeCfApiCall(dns: DNS, cname_target: string, application, proxied: Boolean): Observable<CFAPI>{
         let headers = new Headers({'X-Auth-Email':dns.user, 'X-Auth-Key': dns.key, 'Content-Type': 'application/json'});
         let url = `https://api.cloudflare.com/client/v4/zones/${dns.zone}/dns_records/${dns.record}`;
         let api_data = {
@@ -53,7 +55,7 @@ export class CFService {
             name: application+'.'+environment.baseURL,
             content: cname_target,
             ttl: 1,
-            proxied: true
+            proxied: proxied
         }
         url = environment.corsProxy+url;
         return this.http
@@ -104,6 +106,7 @@ export class CfCredentialsReceivedCallback implements Callback {
 
     callbackWithParam(result: any) {
         var dns = new DNS();
+        dns.has_alt_record = false;
 
         for (let i = 0; i < result.length; i++) {
             if (result[i].Key=='dns_user') {
@@ -114,9 +117,16 @@ export class CfCredentialsReceivedCallback implements Callback {
                 dns.zone = result[i].Value;
             } else if (result[i].Key=='dns_record') {
               dns.record = result[i].Value;
+            } else if (result[i].Key=='dns_alt_record') {
+                dns.has_alt_record = true;
+                dns.alt_record = result[i].Value;
             }
         }
-        this.me.makeCfApiCall(dns, this.cname_target, this.application).subscribe();
+        this.me.makeCfApiCall(dns, this.cname_target, this.application, true).subscribe();
+        if(dns.has_alt_record) {
+            dns.record = dns.alt_record;
+            this.me.makeCfApiCall(dns, this.cname_target, 'tensorboard', false).subscribe();
+        }
     }
 
 }
