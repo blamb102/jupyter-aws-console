@@ -24,7 +24,7 @@ Jupyter-AWS console
 ## Getting the code and running it locally
 ```
 # Clone it from github
-git clone --depth 1 git@github.com:blamb102/jupyter-aws-console.git
+git clone --depth 1 git://github.com/blamb102/jupyter-aws-console.git
 ```
 ```
 # Install the NPM packages
